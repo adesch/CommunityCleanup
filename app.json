@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Community Cleanup",
+    "slug": "community-cleanup",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "communitycleanup",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.communitycleanup.app"
+    },
+    "android": {
+      "package": "com.communitycleanup.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
+
