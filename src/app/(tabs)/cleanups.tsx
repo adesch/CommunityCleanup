@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyPhoto } from '@/components/empty-photo';
 import { Screen } from '@/components/screen';
 import { StatusPill } from '@/components/status-pill';
@@ -7,7 +9,9 @@ import { colors } from '@/theme/colors';
 import { useCleanups } from '@/state/cleanup-context';
 
 export default function CleanupsScreen() {
-  const { myCleanups } = useCleanups();
+  const { myCleanups, releaseArea } = useCleanups();
+  const [releaseId, setReleaseId] = useState<string | null>(null);
+  const releaseCleanup = myCleanups.find((cleanup) => cleanup.id === releaseId);
   return (
     <Screen>
       <View>
@@ -27,8 +31,13 @@ export default function CleanupsScreen() {
             <EmptyPhoto label="Before photo" />
             <EmptyPhoto label="After photo" />
           </View>
-          <Pressable style={styles.secondaryButton}>
-            <Text style={styles.secondaryText}>View cleanup details</Text>
+          <Pressable
+            style={[styles.secondaryButton, cleanup.volunteer === 'Alex Rivera' && styles.releaseButton]}
+            onPress={() => cleanup.volunteer === 'Alex Rivera' && setReleaseId(cleanup.id)}
+          >
+            <Text style={[styles.secondaryText, cleanup.volunteer === 'Alex Rivera' && styles.releaseText]}>
+              {cleanup.volunteer === 'Alex Rivera' ? 'Release this street' : 'View cleanup details'}
+            </Text>
           </Pressable>
         </View>
       ))}
@@ -42,6 +51,18 @@ export default function CleanupsScreen() {
         <Text style={styles.noteTitle}>Photo uploads are coming next</Text>
         <Text style={styles.noteBody}>These placeholders will connect to device photos and private storage when the backend is configured.</Text>
       </View>
+      <ConfirmDialog
+        visible={releaseCleanup !== undefined}
+        title={`Release ${releaseCleanup?.name ?? 'this street'}?`}
+        message="This block will return to the available pool."
+        confirmLabel="Release street"
+        destructive
+        onConfirm={() => {
+          if (releaseCleanup) releaseArea(releaseCleanup.id);
+          setReleaseId(null);
+        }}
+        onCancel={() => setReleaseId(null)}
+      />
     </Screen>
   );
 }
@@ -57,6 +78,8 @@ const styles = StyleSheet.create({
   photos: { flexDirection: 'row', gap: 10 },
   secondaryButton: { borderWidth: 1, borderColor: colors.primary, paddingVertical: 13, borderRadius: 14, alignItems: 'center' },
   secondaryText: { color: colors.primary, fontWeight: '800' },
+  releaseButton: { borderColor: colors.claimed, backgroundColor: '#FFF4E8' },
+  releaseText: { color: colors.danger },
   note: { padding: 16, borderRadius: 16, backgroundColor: '#E7F2EC' },
   noteTitle: { color: colors.ink, fontWeight: '800', marginBottom: 4 },
   noteBody: { color: colors.muted, lineHeight: 20 },

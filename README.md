@@ -7,7 +7,7 @@ An Expo + React Native prototype for coordinating neighborhood trash cleanups. T
 - Expo SDK 58, React Native, and strict TypeScript
 - Expo Router with Map, My Cleanups, Profile, and Admin tabs
 - An interactive OpenStreetMap view bounded to Downingtown with 554 locally stored, clickable block segments
-- In-session street selection and claiming that updates My Cleanups immediately
+- Persistent street claiming and releasing that updates My Cleanups immediately on the current device
 - Placeholder claim, before/after photo, history, and volunteer-assignment flows
 - Shared types, mock data, theme tokens, and reusable components under `src/`
 

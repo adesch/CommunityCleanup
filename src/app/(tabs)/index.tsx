@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Screen } from '@/components/screen';
 import { StatusPill } from '@/components/status-pill';
 import { CleanupMap } from '@/components/map/cleanup-map';
@@ -9,24 +10,23 @@ import { colors } from '@/theme/colors';
 import { useCleanups } from '@/state/cleanup-context';
 
 export default function MapScreen() {
-  const { areas, claimArea } = useCleanups();
+  const { areas, claimArea, releaseArea, isHydrated } = useCleanups();
   const [selectedId, setSelectedId] = useState(areas[0].id);
   const [mapView, setMapView] = useState<CleanupMapView>('downtown');
+  const [pendingAction, setPendingAction] = useState<'claim' | 'release' | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const selected = areas.find((area) => area.id === selectedId) ?? areas[0];
 
-  const claim = () => Alert.alert(
-    `Claim ${selected.name}?`,
-    `${selected.crossStreet}\n\nThis will add the street to My Cleanups.`,
-    [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Claim street',
-        onPress: () => {
-          if (claimArea(selected.id)) Alert.alert('Street claimed!', `${selected.name} is now in My Cleanups.`);
-        },
-      },
-    ],
-  );
+  const confirmAction = () => {
+    const succeeded = pendingAction === 'claim' ? claimArea(selected.id) : releaseArea(selected.id);
+    if (succeeded) {
+      setNotice(pendingAction === 'claim' ? `${selected.name} is now in My Cleanups.` : `${selected.name} is available again.`);
+    }
+    setPendingAction(null);
+  };
+
+  const claimedByUser = selected.status === 'claimed' && selected.volunteer === 'Alex Rivera';
+  const actionDisabled = !isHydrated || (selected.status !== 'available' && !claimedByUser);
 
   return (
     <Screen contentStyle={styles.screen}>
@@ -60,13 +60,29 @@ export default function MapScreen() {
           <StatusPill status={selected.status} />
         </View>
         <Pressable
-          style={[styles.button, selected.status !== 'available' && styles.buttonDisabled]}
-          disabled={selected.status !== 'available'}
-          onPress={claim}
+          style={[styles.button, actionDisabled && styles.buttonDisabled, claimedByUser && styles.releaseButton]}
+          disabled={actionDisabled}
+          onPress={() => {
+            setNotice(null);
+            setPendingAction(claimedByUser ? 'release' : 'claim');
+          }}
         >
-          <Text style={styles.buttonText}>{selected.status === 'available' ? 'Claim this street' : selected.volunteer === 'Alex Rivera' ? 'Claimed by you' : selected.status === 'claimed' ? 'Already claimed' : 'Cleanup complete'}</Text>
+          <Text style={[styles.buttonText, claimedByUser && styles.releaseButtonText]}>
+            {!isHydrated ? 'Loading claims…' : selected.status === 'available' ? 'Claim this street' : claimedByUser ? 'Release my claim' : selected.status === 'claimed' ? 'Already claimed' : 'Cleanup complete'}
+          </Text>
         </Pressable>
+        {notice && <Text style={styles.notice}>{notice}</Text>}
       </View>
+      <ConfirmDialog
+        visible={pendingAction !== null}
+        title={pendingAction === 'release' ? `Release ${selected.name}?` : `Claim ${selected.name}?`}
+        message={pendingAction === 'release' ? 'This block will become available for another volunteer.' : `${selected.crossStreet}. This will add the block to My Cleanups.`}
+        confirmLabel={pendingAction === 'release' ? 'Release street' : 'Claim street'}
+        cancelLabel={pendingAction === 'release' ? 'Keep claim' : 'Cancel'}
+        destructive={pendingAction === 'release'}
+        onConfirm={confirmAction}
+        onCancel={() => setPendingAction(null)}
+      />
     </Screen>
   );
 }
@@ -89,7 +105,10 @@ const styles = StyleSheet.create({
   cardMeta: { color: colors.muted, fontSize: 13 },
   button: { backgroundColor: colors.primary, borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
   buttonDisabled: { backgroundColor: '#AAB8B3' },
+  releaseButton: { backgroundColor: '#FFF4E8', borderWidth: 1, borderColor: colors.claimed },
+  releaseButtonText: { color: colors.danger },
   buttonText: { color: '#FFFFFF', fontWeight: '800', fontSize: 15 },
+  notice: { color: colors.primaryDark, fontSize: 13, fontWeight: '700', textAlign: 'center' },
 });
 
 const mapViews: { id: CleanupMapView; label: string }[] = [
