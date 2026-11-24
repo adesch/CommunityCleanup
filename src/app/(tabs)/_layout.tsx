@@ -3,7 +3,7 @@ import { Text } from 'react-native';
 
 import { colors } from '@/theme/colors';
 
-const tabIcons: Record<string, string> = { index: '⌖', cleanups: '✓', profile: '●', admin: '⚙' };
+const tabIcons: Record<string, string> = { index: '⌖', cleanups: '✓', coach: '✦', profile: '●', admin: '⚙' };
 
 export default function TabLayout() {
   return (
@@ -18,7 +18,8 @@ export default function TabLayout() {
       })}
     >
       <Tabs.Screen name="index" options={{ title: 'Map' }} />
-      <Tabs.Screen name="cleanups" options={{ title: 'My Cleanups' }} />
+      <Tabs.Screen name="cleanups" options={{ title: 'Territory' }} />
+      <Tabs.Screen name="coach" options={{ title: 'Coach' }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
       <Tabs.Screen name="admin" options={{ title: 'Admin' }} />
     </Tabs>

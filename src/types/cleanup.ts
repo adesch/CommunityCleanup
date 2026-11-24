@@ -1,4 +1,4 @@
-export type CleanupStatus = 'available' | 'claimed' | 'completed';
+export type CleanupStatus = 'available' | 'claimed';
 
 export type CleanupArea = {
   id: string;
@@ -10,5 +10,10 @@ export type CleanupArea = {
   completedAt?: string;
   coordinates?: [number, number][];
   osmWayId?: number;
+  ownerId?: string;
+  ownerName?: string;
+  ownerColor?: string;
+  proofCapturedAt?: string;
+  proofSource?: 'camera' | 'library';
 };
 

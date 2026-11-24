@@ -6,14 +6,13 @@ import type { CleanupStatus } from '@/types/cleanup';
 const statusColors: Record<CleanupStatus, string> = {
   available: colors.available,
   claimed: colors.claimed,
-  completed: colors.completed,
 };
 
-export function StatusPill({ status }: { status: CleanupStatus }) {
+export function StatusPill({ status, color, label }: { status: CleanupStatus; color?: string; label?: string }) {
   return (
     <View style={styles.container}>
-      <View style={[styles.dot, { backgroundColor: statusColors[status] }]} />
-      <Text style={styles.label}>{status[0].toUpperCase() + status.slice(1)}</Text>
+      <View style={[styles.dot, { backgroundColor: color ?? statusColors[status] }]} />
+      <Text style={styles.label}>{label ?? status[0].toUpperCase() + status.slice(1)}</Text>
     </View>
   );
 }

@@ -9,14 +9,14 @@ import { colors } from '@/theme/colors';
 import { useCleanups } from '@/state/cleanup-context';
 
 export default function CleanupsScreen() {
-  const { myCleanups, releaseArea } = useCleanups();
+  const { myCleanups, releaseArea, currentPersona } = useCleanups();
   const [releaseId, setReleaseId] = useState<string | null>(null);
   const releaseCleanup = myCleanups.find((cleanup) => cleanup.id === releaseId);
   return (
     <Screen>
       <View>
-        <Text style={styles.title}>My cleanups</Text>
-        <Text style={styles.subtitle}>Document the difference you make.</Text>
+        <Text style={styles.title}>My territory</Text>
+        <Text style={styles.subtitle}>{currentPersona.name} owns {myCleanups.length} blocks.</Text>
       </View>
       {myCleanups.map((cleanup) => (
         <View key={cleanup.id} style={styles.card}>
@@ -24,38 +24,41 @@ export default function CleanupsScreen() {
             <View style={styles.grow}>
               <Text style={styles.cardTitle}>{cleanup.name}</Text>
               <Text style={styles.meta}>{cleanup.completedAt ?? cleanup.crossStreet}</Text>
+              {cleanup.proofCapturedAt && (
+                <Text style={styles.proofMeta}>Proof received {new Date(cleanup.proofCapturedAt).toLocaleString()} · {cleanup.proofSource === 'camera' ? 'camera' : 'photo library'}</Text>
+              )}
             </View>
-            <StatusPill status={cleanup.status} />
+            <StatusPill status={cleanup.status} color={cleanup.ownerColor} label="Owned" />
           </View>
           <View style={styles.photos}>
             <EmptyPhoto label="Before photo" />
             <EmptyPhoto label="After photo" />
           </View>
           <Pressable
-            style={[styles.secondaryButton, cleanup.volunteer === 'Alex Rivera' && styles.releaseButton]}
-            onPress={() => cleanup.volunteer === 'Alex Rivera' && setReleaseId(cleanup.id)}
+            style={[styles.secondaryButton, cleanup.ownerId === currentPersona.id && styles.releaseButton]}
+            onPress={() => cleanup.ownerId === currentPersona.id && setReleaseId(cleanup.id)}
           >
-            <Text style={[styles.secondaryText, cleanup.volunteer === 'Alex Rivera' && styles.releaseText]}>
-              {cleanup.volunteer === 'Alex Rivera' ? 'Release this street' : 'View cleanup details'}
+            <Text style={[styles.secondaryText, cleanup.ownerId === currentPersona.id && styles.releaseText]}>
+              {cleanup.ownerId === currentPersona.id ? 'Abandon this block' : 'View cleanup details'}
             </Text>
           </Pressable>
         </View>
       ))}
-      {myCleanups.length === 1 && (
+      {myCleanups.length === 0 && (
         <View style={styles.empty}>
           <Text style={styles.emptyTitle}>Ready for another cleanup?</Text>
-          <Text style={styles.emptyBody}>Choose an available street on the Downingtown map and tap “Claim this street.”</Text>
+          <Text style={styles.emptyBody}>Choose an unclaimed block on the Downingtown map and tap “Capture this block.”</Text>
         </View>
       )}
       <View style={styles.note}>
-        <Text style={styles.noteTitle}>Photo uploads are coming next</Text>
-        <Text style={styles.noteBody}>These placeholders will connect to device photos and private storage when the backend is configured.</Text>
+        <Text style={styles.noteTitle}>Cleanup proof is coming next</Text>
+        <Text style={styles.noteBody}>Before-and-after photos will verify that a captured block was actually cleaned without changing its ownership color.</Text>
       </View>
       <ConfirmDialog
         visible={releaseCleanup !== undefined}
-        title={`Release ${releaseCleanup?.name ?? 'this street'}?`}
-        message="This block will return to the available pool."
-        confirmLabel="Release street"
+        title={`Abandon ${releaseCleanup?.name ?? 'this block'}?`}
+        message="This territory will become unclaimed and your score will decrease by 10 points."
+        confirmLabel="Abandon block"
         destructive
         onConfirm={() => {
           if (releaseCleanup) releaseArea(releaseCleanup.id);
@@ -75,6 +78,7 @@ const styles = StyleSheet.create({
   grow: { flex: 1 },
   cardTitle: { color: colors.ink, fontWeight: '800', fontSize: 20 },
   meta: { color: colors.muted, marginTop: 4 },
+  proofMeta: { color: colors.primaryDark, fontSize: 12, fontWeight: '700', marginTop: 5 },
   photos: { flexDirection: 'row', gap: 10 },
   secondaryButton: { borderWidth: 1, borderColor: colors.primary, paddingVertical: 13, borderRadius: 14, alignItems: 'center' },
   secondaryText: { color: colors.primary, fontWeight: '800' },

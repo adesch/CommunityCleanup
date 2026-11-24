@@ -25,7 +25,7 @@ export function CleanupMap({ areas, selectedId, onSelect, view }: CleanupMapProp
   return (
     <View style={styles.frame}>
       <WebView
-        key={`${view}-${selectedId}-${areas.map((area) => area.status).join('-')}`}
+        key={`${view}-${selectedId}-${areas.map((area) => area.ownerId ?? 'open').join('-')}`}
         originWhitelist={['*']}
         source={{ html: buildCleanupMapHtml(areas, selectedId, view) }}
         onMessage={handleMessage}

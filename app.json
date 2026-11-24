@@ -18,7 +18,19 @@
       "output": "static"
     },
     "plugins": [
-      "expo-router"
+      [
+        "expo-router",
+        {
+          "apiRoutes": true
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Community Cleanup to choose cleanup proof photos.",
+          "cameraPermission": "Allow Community Cleanup to take cleanup proof photos."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

@@ -1,4 +1,4 @@
-import { colors } from '@/theme/colors';
+import { personas } from '@/data/mock-personas';
 import type { CleanupArea } from '@/types/cleanup';
 
 export type CleanupMapView = 'downtown' | 'east' | 'west' | 'borough';
@@ -16,8 +16,9 @@ export function buildCleanupMapHtml(areas: CleanupArea[], selectedId: string, vi
     name: area.name,
     detail: area.crossStreet,
     status: area.status,
+    ownerName: area.ownerName,
     coordinates: area.coordinates,
-    color: colors[area.status],
+    color: area.ownerColor ?? '#8A9691',
     selected: area.id === selectedId,
   }));
   const mapView = mapViews[view];
@@ -75,7 +76,7 @@ export function buildCleanupMapHtml(areas: CleanupArea[], selectedId: string, vi
       const hitArea = L.polyline(street.coordinates, { color: '#000', weight: 18, opacity: 0 });
       hitArea.addTo(map);
       line.bindTooltip(street.name, { className: 'street-name', sticky: true });
-      line.bindPopup('<strong>' + street.name + '</strong><br>' + street.detail + '<br><em>' + street.status + '</em>');
+      line.bindPopup('<strong>' + street.name + '</strong><br>' + street.detail + '<br><em>' + (street.ownerName ? 'Owned by ' + street.ownerName : 'Unclaimed') + '</em>');
       line.on('click', () => selectStreet(street.id));
       hitArea.on('click', () => selectStreet(street.id));
       hitArea.bindTooltip(street.name, { className: 'street-name', sticky: true });
@@ -88,9 +89,8 @@ export function buildCleanupMapHtml(areas: CleanupArea[], selectedId: string, vi
     const key = L.control({ position: 'bottomleft' });
     key.onAdd = () => {
       const div = L.DomUtil.create('div', 'map-key');
-      div.innerHTML = '<div><span style="background:${colors.available}"></span>Available</div>' +
-        '<div><span style="background:${colors.claimed}"></span>Claimed</div>' +
-        '<div><span style="background:${colors.completed}"></span>Completed</div>';
+      div.innerHTML = '<div><span style="background:#8A9691"></span>Unclaimed</div>' +
+        ${personas.map((persona) => `'<div><span style="background:${persona.color}"></span>${persona.name}</div>'`).join(' + ')};
       return div;
     };
     key.addTo(map);
