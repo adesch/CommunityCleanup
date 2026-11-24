@@ -4,7 +4,7 @@ type ReviewRequest = {
   question?: string;
   player?: { name?: string; blocks?: number; points?: number; rank?: number; miles?: number };
   competitors?: { name?: string; blocks?: number; points?: number }[];
-  opportunities?: { name?: string; distance?: string; owner?: string }[];
+  opportunities?: { name?: string; distance?: string; owner?: string; cleanupNeed?: string }[];
 };
 
 const requestLog = new Map<string, number[]>();
@@ -62,6 +62,7 @@ export async function POST(request: Request) {
       name: String(item.name ?? '').slice(0, 100),
       distance: String(item.distance ?? '').slice(0, 30),
       owner: String(item.owner ?? 'Unclaimed').slice(0, 80),
+      cleanupNeed: String(item.cleanupNeed ?? 'Not reported').slice(0, 100),
     })),
   };
 

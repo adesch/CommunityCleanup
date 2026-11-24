@@ -1,4 +1,7 @@
 export type CleanupStatus = 'available' | 'claimed';
+export type CleanupIssue = 'Litter' | 'Overflowing bin' | 'Illegal dumping' | 'Other';
+export type CleanupSeverity = 'Low' | 'Medium' | 'High';
+export type CleanupReport = { issue: CleanupIssue; severity: CleanupSeverity; note: string; reportedAt: string };
 
 export type CleanupArea = {
   id: string;
@@ -15,5 +18,6 @@ export type CleanupArea = {
   ownerColor?: string;
   proofCapturedAt?: string;
   proofSource?: 'camera' | 'library';
+  cleanupReport?: CleanupReport;
 };
 

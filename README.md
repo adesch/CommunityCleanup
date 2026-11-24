@@ -11,6 +11,8 @@ An Expo + React Native prototype for coordinating neighborhood trash cleanups. T
 - Territory gameplay with two switchable mock personas, player colors, 10-point block captures, and a live leaderboard
 - Photo-gated territory claims and takeovers with locally recorded proof time and source
 - A server-backed AI Territory Coach that reviews territory, nearby expansion options, and competition
+- Persistent resident cleanup-needed reports with issue, severity, notes, and orange map markers
+- Connected-territory scoring: 10 points per block plus 5 points for every adjacent owned pair
 
 ## AI Territory Coach
 

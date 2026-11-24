@@ -19,6 +19,7 @@ export function buildCleanupMapHtml(areas: CleanupArea[], selectedId: string, vi
     ownerName: area.ownerName,
     coordinates: area.coordinates,
     color: area.ownerColor ?? '#8A9691',
+    report: area.cleanupReport ? { issue: area.cleanupReport.issue, severity: area.cleanupReport.severity } : null,
     selected: area.id === selectedId,
   }));
   const mapView = mapViews[view];
@@ -84,12 +85,19 @@ export function buildCleanupMapHtml(areas: CleanupArea[], selectedId: string, vi
         line.openPopup();
         map.fitBounds(outline.getBounds(), { padding: [80, 80], maxZoom: 17 });
       }
+      if (street.report) {
+        const midpoint = street.coordinates[Math.floor(street.coordinates.length / 2)];
+        const reportMarker = L.circleMarker(midpoint, { radius: 8, color: '#ffffff', weight: 3, fillColor: '#F2A93B', fillOpacity: 1 }).addTo(map);
+        reportMarker.bindTooltip('Cleanup needed: ' + street.report.issue + ' (' + street.report.severity + ')', { className: 'street-name' });
+        reportMarker.on('click', () => selectStreet(street.id));
+      }
     });
 
     const key = L.control({ position: 'bottomleft' });
     key.onAdd = () => {
       const div = L.DomUtil.create('div', 'map-key');
-      div.innerHTML = '<div><span style="background:#8A9691"></span>Unclaimed</div>' +
+      div.innerHTML = '<div><span style="background:#F2A93B"></span>Needs cleanup</div>' +
+        '<div><span style="background:#8A9691"></span>Unclaimed</div>' +
         ${personas.map((persona) => `'<div><span style="background:${persona.color}"></span>${persona.name}</div>'`).join(' + ')};
       return div;
     };

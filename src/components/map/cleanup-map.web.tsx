@@ -29,7 +29,7 @@ export function CleanupMap({ areas, selectedId, onSelect, view }: CleanupMapProp
   return (
     <View style={styles.frame}>
       {createElement('iframe', {
-        key: `${view}-${selectedId}-${areas.map((area) => area.ownerId ?? 'open').join('-')}`,
+        key: `${view}-${selectedId}-${areas.map((area) => `${area.ownerId ?? 'open'}:${area.cleanupReport?.reportedAt ?? ''}`).join('-')}`,
         srcDoc: buildCleanupMapHtml(areas, selectedId, view),
         title: 'Interactive cleanup map of Downingtown, Pennsylvania',
         style: { width: '100%', height: '100%', border: 0 },

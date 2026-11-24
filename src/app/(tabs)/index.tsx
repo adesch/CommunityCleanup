@@ -3,19 +3,22 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { CleanupProofDialog } from '@/components/cleanup-proof-dialog';
+import { ReportCleanupDialog } from '@/components/report-cleanup-dialog';
 import { CleanupMap } from '@/components/map/cleanup-map';
 import type { CleanupMapView } from '@/components/map/cleanup-map-html';
 import { Screen } from '@/components/screen';
 import { StatusPill } from '@/components/status-pill';
 import { useCleanups, type CleanupProof } from '@/state/cleanup-context';
 import { colors } from '@/theme/colors';
+import type { CleanupReport } from '@/types/cleanup';
 
 export default function MapScreen() {
-  const { areas, claimArea, releaseArea, isHydrated, currentPersona, personas, leaderboard, setCurrentPersonaId } = useCleanups();
+  const { areas, claimArea, releaseArea, reportArea, isHydrated, currentPersona, personas, leaderboard, setCurrentPersonaId } = useCleanups();
   const [selectedId, setSelectedId] = useState(areas[0].id);
   const [mapView, setMapView] = useState<CleanupMapView>('downtown');
   const [pendingAction, setPendingAction] = useState<'claim' | 'release' | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [reportVisible, setReportVisible] = useState(false);
   const selected = areas.find((area) => area.id === selectedId) ?? areas[0];
   const ownedByCurrentUser = selected.ownerId === currentPersona.id;
   const ownedBySomeoneElse = Boolean(selected.ownerId && !ownedByCurrentUser);
@@ -33,8 +36,8 @@ export default function MapScreen() {
     const previousOwner = selected.ownerName;
     if (claimArea(selected.id, proof)) {
       setNotice(previousOwner
-        ? `${currentPersona.name} captured this block from ${previousOwner} and earned 10 points!`
-        : `${currentPersona.name} claimed this block and earned 10 points!`);
+        ? `${currentPersona.name} captured this block from ${previousOwner}. Score updated with any connection bonus!`
+        : `${currentPersona.name} claimed this block. Score updated with any connection bonus!`);
     }
     setPendingAction(null);
   };
@@ -73,6 +76,7 @@ export default function MapScreen() {
             <Text style={styles.points}>{player.points} pts</Text>
           </View>
         ))}
+        <Text style={styles.bonusHelp}>10 points per block + 5 points for every connected pair.</Text>
       </View>
 
       <View style={styles.viewPicker}>
@@ -108,8 +112,17 @@ export default function MapScreen() {
           onPress={() => setPendingAction(ownedByCurrentUser ? 'release' : 'claim')}
         >
           <Text style={[styles.buttonText, ownedByCurrentUser && styles.releaseButtonText]}>
-            {!isHydrated ? 'Loading territory…' : ownedByCurrentUser ? 'Abandon this block' : ownedBySomeoneElse ? `Clean & capture from ${selected.ownerName}` : 'Clean & claim this block · 10 points'}
+            {!isHydrated ? 'Loading territory…' : ownedByCurrentUser ? 'Abandon this block' : ownedBySomeoneElse ? `Clean & capture from ${selected.ownerName}` : 'Clean & claim this block · 10+ points'}
           </Text>
+        </Pressable>
+        {selected.cleanupReport && (
+          <View style={styles.reportSummary}>
+            <Text style={styles.reportTitle}>⚑ Cleanup requested · {selected.cleanupReport.severity}</Text>
+            <Text style={styles.reportText}>{selected.cleanupReport.issue}{selected.cleanupReport.note ? ` — ${selected.cleanupReport.note}` : ''}</Text>
+          </View>
+        )}
+        <Pressable style={styles.reportButton} onPress={() => setReportVisible(true)}>
+          <Text style={styles.reportButtonText}>{selected.cleanupReport ? 'Update cleanup report' : 'Report cleanup needed'}</Text>
         </Pressable>
         {notice && <Text style={styles.notice}>{notice}</Text>}
       </View>
@@ -132,6 +145,17 @@ export default function MapScreen() {
         onSubmit={submitProof}
         onCancel={() => setPendingAction(null)}
       />
+      <ReportCleanupDialog
+        key={`${selected.id}-${selected.cleanupReport?.reportedAt ?? 'new'}`}
+        visible={reportVisible}
+        streetName={selected.name}
+        existingReport={selected.cleanupReport}
+        onSubmit={(report: CleanupReport) => {
+          reportArea(selected.id, report);
+          setNotice(`${selected.name} was marked as needing cleanup.`);
+        }}
+        onCancel={() => setReportVisible(false)}
+      />
     </Screen>
   );
 }
@@ -152,6 +176,7 @@ const styles = StyleSheet.create({
   leaderName: { flex: 1, color: colors.ink, fontWeight: '700' },
   blocks: { color: colors.muted, fontSize: 12 },
   points: { width: 57, textAlign: 'right', color: colors.ink, fontWeight: '800' },
+  bonusHelp: { color: colors.muted, fontSize: 10, textAlign: 'right' },
   viewPicker: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
   viewButton: { paddingHorizontal: 13, paddingVertical: 8, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   viewButtonActive: { backgroundColor: colors.ink, borderColor: colors.ink },
@@ -169,6 +194,11 @@ const styles = StyleSheet.create({
   releaseButton: { backgroundColor: '#FFF4E8', borderWidth: 1, borderColor: colors.claimed },
   releaseButtonText: { color: colors.danger },
   buttonText: { color: '#FFFFFF', fontWeight: '800', fontSize: 15, textAlign: 'center' },
+  reportSummary: { padding: 12, borderRadius: 12, backgroundColor: '#FFF2DB', gap: 3 },
+  reportTitle: { color: colors.ink, fontSize: 13, fontWeight: '800' },
+  reportText: { color: colors.muted, fontSize: 12, lineHeight: 17 },
+  reportButton: { alignItems: 'center', paddingVertical: 12, borderRadius: 13, borderWidth: 1, borderColor: colors.claimed },
+  reportButtonText: { color: colors.danger, fontWeight: '800' },
   notice: { color: colors.primaryDark, fontSize: 13, fontWeight: '700', textAlign: 'center' },
 });
 

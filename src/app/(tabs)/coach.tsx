@@ -23,9 +23,14 @@ function expansionOpportunities(areas: CleanupArea[], ownerId: string) {
       const proximity = Math.min(...ownedCenters.map(([ownedLat, ownedLon]) => (lat - ownedLat) ** 2 + (lon - ownedLon) ** 2));
       return { area, proximity };
     })
-    .sort((a, b) => a.proximity - b.proximity)
+    .sort((a, b) => Number(Boolean(b.area.cleanupReport)) - Number(Boolean(a.area.cleanupReport)) || a.proximity - b.proximity)
     .slice(0, 10)
-    .map(({ area }) => ({ name: area.name, distance: area.distance, owner: area.ownerName ?? 'Unclaimed' }));
+    .map(({ area }) => ({
+      name: area.name,
+      distance: area.distance,
+      owner: area.ownerName ?? 'Unclaimed',
+      cleanupNeed: area.cleanupReport ? `${area.cleanupReport.severity}: ${area.cleanupReport.issue}` : 'Not reported',
+    }));
 }
 
 export default function CoachScreen() {

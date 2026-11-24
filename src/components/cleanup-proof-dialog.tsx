@@ -100,7 +100,7 @@ export function CleanupProofDialog({ visible, streetName, previousOwner, playerN
                 setError(null);
               }}
             >
-              <Text style={styles.submitText}>{previousOwner ? 'Transfer territory' : 'Claim territory'} · 10 pts</Text>
+              <Text style={styles.submitText}>{previousOwner ? 'Transfer territory' : 'Claim territory'} · 10+ pts</Text>
             </Pressable>
           </View>
         </View>

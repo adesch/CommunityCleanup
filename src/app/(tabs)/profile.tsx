@@ -29,7 +29,7 @@ export default function ProfileScreen() {
         <View style={[styles.colorSwatch, { backgroundColor: currentPersona.color }]} />
         <View style={styles.grow}>
           <Text style={styles.eventTitle}>{player.blocks} Downingtown blocks owned</Text>
-          <Text style={styles.eventMeta}>{miles.toFixed(1)} total territory miles · 10 points per block</Text>
+          <Text style={styles.eventMeta}>{miles.toFixed(1)} territory miles · {player.bonusPoints} connection bonus points from {player.connections} adjacent pairs</Text>
         </View>
       </View>
       <Text style={styles.sectionTitle}>Cleanup history</Text>

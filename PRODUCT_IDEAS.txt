@@ -1,0 +1,43 @@
+COMMUNITY CLEANUP PRODUCT IDEAS
+================================
+
+CORE TERRITORY LOOP
+- Territory health instead of permanent ownership.
+- Suggested lifecycle: Unclaimed -> Recently Cleaned -> Healthy -> Needs Attention -> Available Again.
+- Ownership could last 14-30 days and be defended with a verified new cleanup.
+- Avoid unrestricted instant stealing while a block is still protected.
+
+GAMIFICATION
+- Weekly quests: clean three connected blocks, defend two streets, protect a park entrance.
+- Neighborhood teams: East Downingtown, West Downingtown, schools, businesses, and community groups.
+- Monthly seasons with seasonal rankings plus permanent lifetime impact statistics.
+- Connected-territory bonuses for adjacent owned blocks.
+- Cleanup streaks and badges: First Block, Park Protector, Downtown Defender, Weekend Warrior.
+- Shareable cleanup cards with before/after photos, bags removed, blocks captured, and points earned.
+
+COMMUNITY FEATURES
+- Residents mark blocks that need cleanup, including severity, issue type, notes, and eventually photos.
+- Community cleanup events with meeting point, date, supplies, target blocks, and participant check-in.
+- Municipal or nonprofit notifications for reported hotspots.
+- Safety escalation for needles, chemicals, dead animals, large debris, and dangerous roads.
+
+IMPACT AND VERIFICATION
+- Score verified cleanups, distance, bags, weight, and difficult hotspots instead of territory alone.
+- In-app camera sessions with server timestamp, approximate GPS, and immediate upload.
+- AI-assisted comparison of before/after photos.
+- AI litter classification by object, material, and brand, with user confirmation.
+- Cleanup history stays separate from territory ownership state.
+
+DATA AND ADMIN
+- Shared Supabase accounts, territory, reports, cleanup proof, and durable leaderboards.
+- Admin review queue for disputed or suspicious cleanup proof.
+- Municipality dashboard for hotspots, litter trends, events, and response status.
+- CSV/open-data exports with privacy-safe location handling.
+
+RECOMMENDED BUILD ORDER
+1. Supabase authentication and shared ownership.
+2. Resident cleanup-needed reports.
+3. Territory health and expiration.
+4. Verified cleanup records and impact scoring.
+5. Weekly quests, badges, teams, and seasonal leaderboards.
+
